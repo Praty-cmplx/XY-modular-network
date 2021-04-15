@@ -6,18 +6,18 @@
 
 #include "MT19937-64.c"
 #define PI 3.1415926
-#define size 512
+#define size 512 // System size
 
 
-double spin[size];
-int V[size][size];
-double p_add;
+double spin[size]; //spin state
+int V[size][size]; //adjecency matrix
+double p_add; //Probability of adding a spin to a cluster
 #include "Modular_network_generator.c" //Adjacency matrix
 
-int nm=16, av_k=14;
-float r=0.001, C;
+int nm=16, av_k=14; //nm is number of modules, av_k is average degree
+float r=0.001, C; //r is the ratio of inter modular edges and intra modular edges, C is temperature kT/J
 
-void network_generator(int a, int b, float c);
+void network_generator(int a, int b, float c); 
 void quench();
 double energy();
 double flip(double a, double b);
@@ -27,14 +27,14 @@ double mod_mag();
 
 void main()
 {	
-	double C_min=5.1;
-	double C_max=6.9;
-	double C_res=0.1;
+	double C_min=5.1; // Temperaure space start
+	double C_max=6.9; // Temperaure space end
+	double C_res=0.1; // step size
 	
 	double Mag, ModMag, NRG;
 	printf("XY Simulation - Wolff - r = %f \n", r);
-	int eqb_runs=51200, avg_runs=5120;
-	int networks=10, conditions=10, mod_size=size/nm;
+	int eqb_runs=51200, avg_runs=5120; //avg_runs steps are averaged and recorded
+	int networks=10, conditions=10, mod_size=size/nm; //number of networks, initial conditions
 
 	int seed = (unsigned) time(NULL);
 	init_genrand64(seed);
@@ -105,7 +105,7 @@ void main()
 }
 
 
-void Wolff_run()
+void Wolff_run() //One step of Wolff algorithm for a given configuration of the system
 {
 	int node, current, nbr, x, stack[size];
 	double ref, oldspin, newspin, temp[size];
@@ -147,7 +147,7 @@ void Wolff_run()
 	}
 }
 
-double flip(double x, double r)
+double flip(double x, double r) //Wolff algorithm flip
 {
 	double newspin, r_prime;
 	r_prime = fmod(r+PI/2.0, 2*PI);
@@ -155,7 +155,7 @@ double flip(double x, double r)
 	return(newspin);
 }
 
-double energy()
+double energy() //Computes energy of the system
 {
 	double H=0;
 	for (int i=0; i<size; i++)
@@ -171,13 +171,13 @@ double energy()
 	return(H);
 }
 
-void quench()
+void quench() //Quenched state intializer
 {
 	for (int i=0; i<size; i++)
 		spin[i]=genrand64_real2()*2.0*PI;
 }
 
-double mag()
+double mag() //Computes the absolute order parameter
 {	
 	double complex tmp=0;
 	for (int i=0; i<size; i++)
@@ -188,7 +188,7 @@ double mag()
 	return (avg);
 }
 
-double mod_mag()
+double mod_mag() //Computes the absolute order parameter at modular level
 {
 	double mod_size = (double)size/(double)nm;
 	int initial=0, final=mod_size;
